@@ -230,8 +230,8 @@ void test_load_config_limits(void) {
         return;
     }
 
-    // Add more devices than MAX_DEVICES
-    for (int i = 0; i < MAX_DEVICES + 2; i++) {
+    // Add more devices than MAX_CONFIG_DEVICES
+    for (int i = 0; i < MAX_CONFIG_DEVICES + 2; i++) {
         fprintf(f, "[0x%04x/0x%04x]\n", i, i);
         fprintf(f, "target = device%d\n", i);
         // Add more bindings than MAX_BINDINGS
@@ -245,7 +245,7 @@ void test_load_config_limits(void) {
     CU_ASSERT(load_config(test_config_file, &test_config) == true);
 
     // Verify limits are respected
-    CU_ASSERT_EQUAL(test_config.device_count, MAX_DEVICES);
+    CU_ASSERT_EQUAL(test_config.device_count, MAX_CONFIG_DEVICES);
     for (size_t i = 0; i < test_config.device_count; i++) {
         CU_ASSERT_EQUAL(test_config.devices[i].binding_count, MAX_BINDINGS);
     }

@@ -8,7 +8,7 @@
 #include "debug.h"
 
 #define BUFFER_SIZE 64
-#define MAX_DEVICES 16
+#define MAX_MONITORED_DEVICES 16
 
 // Forward declarations
 static void poll_devices(uv_timer_t* handle);
@@ -18,7 +18,7 @@ extern config_t config;
 
 // Global variables
 static struct {
-    hid_device* devices[MAX_DEVICES];
+    hid_device* devices[MAX_MONITORED_DEVICES];
     int device_count;
     key_callback_t key_callback;
     void* user_data;
@@ -108,7 +108,7 @@ bool hid_manager_reload(void) {
     hid_manager.device_count = 0;
 
     // Enumerate and open configured devices
-    for (size_t i = 0; i < config.device_count && i < MAX_DEVICES; i++) {
+    for (size_t i = 0; i < config.device_count && i < MAX_MONITORED_DEVICES; i++) {
         struct hid_device_info* devs = hid_enumerate(0, 0);
         struct hid_device_info* cur_dev;
 

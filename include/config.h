@@ -4,7 +4,7 @@
 #include <stddef.h>  // for size_t
 
 #define MAX_BINDINGS 5
-#define MAX_DEVICES 5
+#define MAX_CONFIG_DEVICES 5
 #define MAX_MONITORED_KEYCODES 5
 #define MAX_PATH 256
 
@@ -28,7 +28,7 @@ typedef struct {
 
 typedef struct {
     char setleds_path[MAX_PATH];
-    device_config_t devices[10];
+    device_config_t devices[MAX_CONFIG_DEVICES];
     size_t device_count;
     uint32_t monitored_keycodes[MAX_MONITORED_KEYCODES];
     size_t monitored_keycodes_count;

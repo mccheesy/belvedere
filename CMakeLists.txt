@@ -50,6 +50,12 @@ message(STATUS "Building for OS: ${OS}, Architecture: ${ARCH}")
 
 # Find required packages
 find_package(PkgConfig REQUIRED)
+pkg_check_modules(LIBUV REQUIRED libuv)
+pkg_check_modules(CUNIT REQUIRED cunit)
+
+# Set explicit paths for CUnit
+set(CUNIT_LIBRARY_DIR "/opt/homebrew/Cellar/cunit/2.1-3/lib")
+set(CUNIT_INCLUDE_DIR "/opt/homebrew/Cellar/cunit/2.1-3/include")
 
 # Set library search paths based on OS and architecture
 if(APPLE)
@@ -183,6 +189,7 @@ set(SOURCES
     src/config.c
     src/debug.c
     src/hid_manager.c
+    src/ipc.c
 )
 
 # Add header files
@@ -190,6 +197,7 @@ set(HEADERS
     include/config.h
     include/debug.h
     include/hid_manager.h
+    include/ipc.h
 )
 
 # Create executable
@@ -200,12 +208,14 @@ target_include_directories(belvedere PRIVATE
     ${CMAKE_SOURCE_DIR}/include
     ${HIDAPI_INCLUDE_DIR}
     ${LIBUV_INCLUDE_DIR}
+    ${CUNIT_INCLUDE_DIR}
 )
 
 # Link libraries
 target_link_libraries(belvedere PRIVATE
     ${HIDAPI_LIBRARY}
     ${LIBUV_LIBRARY}
+    "-L${CUNIT_LIBRARY_DIR} -lcunit"
 )
 
 # Install executable
@@ -269,7 +279,7 @@ if(BUILD_TESTS)
     add_executable(test_config tests/test_config.c src/config.c src/debug.c)
     target_link_libraries(test_config PRIVATE
         ${CMAKE_DL_LIBS}
-        ${CUNIT_LIBRARY}
+        "-L${CUNIT_LIBRARY_DIR} -lcunit"
     )
     target_include_directories(test_config PRIVATE
         ${CMAKE_SOURCE_DIR}/include
@@ -281,7 +291,7 @@ if(BUILD_TESTS)
         ${CMAKE_DL_LIBS}
         ${HIDAPI_LIBRARY}
         ${LIBUV_LIBRARY}
-        ${CUNIT_LIBRARY}
+        "-L${CUNIT_LIBRARY_DIR} -lcunit"
     )
     target_include_directories(test_hid_manager PRIVATE
         ${CMAKE_SOURCE_DIR}/include
@@ -290,14 +300,26 @@ if(BUILD_TESTS)
         ${CUNIT_INCLUDE_DIR}
     )
 
+    add_executable(test_ipc tests/test_ipc.c src/ipc.c tests/mock_debug.c)
+    target_link_libraries(test_ipc PRIVATE
+        ${LIBUV_LIBRARY}
+        "-L${CUNIT_LIBRARY_DIR} -lcunit"
+    )
+    target_include_directories(test_ipc PRIVATE
+        ${CMAKE_SOURCE_DIR}/include
+        ${LIBUV_INCLUDE_DIR}
+        ${CUNIT_INCLUDE_DIR}
+    )
+
     # Add test targets to CTest
     add_test(NAME test_config COMMAND test_config)
     add_test(NAME test_hid_manager COMMAND test_hid_manager)
+    add_test(NAME test_ipc COMMAND test_ipc)
 
     # Add custom target that runs all tests
     add_custom_target(check
         COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
-        DEPENDS test_config test_hid_manager
+        DEPENDS test_config test_hid_manager test_ipc
         COMMENT "Running all tests..."
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     )

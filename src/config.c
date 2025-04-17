@@ -86,7 +86,7 @@ bool load_config(const char *filename, config_t *config) {
                 continue;
             } else {
                 in_general_section = false;
-                if (config->device_count >= MAX_DEVICES) continue;
+                if (config->device_count >= MAX_CONFIG_DEVICES) continue;
                 unsigned int vid, pid;
                 if (sscanf(trimmed, "[%x/%x]", &vid, &pid) == 2) {
                     current = &config->devices[config->device_count++];
