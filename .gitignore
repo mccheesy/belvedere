@@ -1,45 +1,110 @@
 # Build directories
 build/
 out/
-cmake-build-*/
+bin/
+lib/
+obj/
+Debug/
+Release/
+x64/
+x86/
 
-# IDE files
+# CMake generated files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+*.cmake
+!CMakeLists.txt
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+*.def
+*.exp
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Coverage reports
+*.gcno
+*.gcda
+*.gcov
+coverage/
+coverage_html/
+
+# IDE specific files
 .idea/
 .vscode/
 *.swp
 *.swo
-
-# Compiled files
-*.o
-*.obj
-*.exe
-*.out
-*.app
-
-# CMake files
-CMakeCache.txt
-CMakeFiles/
-CMakeScripts/
-Testing/
-Makefile
-cmake_install.cmake
-install_manifest.txt
-compile_commands.json
-CTestTestfile.cmake
-_deps/
-
-# Coverage reports
-coverage/
-coverage_html/
-*.gcno
-*.gcda
-*.gcov
-
-# OS specific files
+*~
 .DS_Store
-.DS_Store?
+.project
+.classpath
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# Clang cache
+.clangd/
+.cache/clangd/
+.cache/
+
+# Dependency directories
+vendor/
+deps/
+
+# Log files
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+
+# macOS specific
+.DS_Store
+.AppleDouble
+.LSOverride
 ._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
+
+# Windows specific
 Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux specific
+*~
+.directory
+.Trash-*

@@ -1,0 +1,13 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+# Find dependencies
+find_dependency(hidapi)
+find_dependency(libuv)
+
+# Include targets file
+include("${CMAKE_CURRENT_LIST_DIR}/belvedereTargets.cmake")
+
+# Set version
+set(BELVEDERE_VERSION "@PROJECT_VERSION@")
