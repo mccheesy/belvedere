@@ -1,14 +1,9 @@
 ---
-Language: C
+Language: Cpp
 BasedOnStyle: LLVM
 IndentWidth: 4
 UseTab: Never
 ColumnLimit: 100
-AllowShortFunctionsOnASingleLine: None
-AllowShortIfStatementsOnASingleLine: false
-AllowShortLoopsOnASingleLine: false
-AllowShortBlocksOnASingleLine: false
-AllowShortCaseLabelsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: None
 AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
@@ -25,20 +20,14 @@ AlignTrailingComments: true
 BinPackArguments: true
 BinPackParameters: true
 BraceWrapping:
-  AfterClass: false
   AfterControlStatement: false
   AfterEnum: false
   AfterFunction: false
-  AfterNamespace: false
-  AfterObjCDeclaration: false
   AfterStruct: false
   AfterUnion: false
-  BeforeCatch: false
   BeforeElse: false
   IndentBraces: false
-Cpp11BracedListStyle: true
 DerivePointerAlignment: false
-FixNamespaceComments: true
 IncludeBlocks: Regroup
 IncludeCategories:
   - Regex: '^<.*\.h>'
@@ -50,27 +39,15 @@ IncludeCategories:
 IncludeIsMainRegex: '([_](test|unittest))?$'
 IndentCaseLabels: false
 IndentPPDirectives: None
-IndentWidth: 4
-NamespaceIndentation: None
 PointerAlignment: Left
 ReflowComments: true
 SortIncludes: true
-SortUsingDeclarations: true
 SpaceAfterCStyleCast: false
-SpaceAfterTemplateKeyword: true
 SpaceBeforeAssignmentOperators: true
-SpaceBeforeCpp11BracedList: false
-SpaceBeforeCtorInitializerColon: true
-SpaceBeforeInheritanceColon: true
 SpaceBeforeParens: ControlStatements
-SpaceBeforeRangeBasedForLoopColon: true
 SpaceInEmptyParentheses: false
-SpacesBeforeTrailingComments: 2
 SpacesInAngles: false
-SpacesInContainerLiterals: true
 SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
-Standard: c11
 TabWidth: 4
-UseTab: Never

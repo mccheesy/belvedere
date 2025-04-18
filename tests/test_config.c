@@ -1,11 +1,12 @@
+#include <CUnit/Basic.h>
+#include <CUnit/CUnit.h>
+#include <limits.h>  // for PATH_MAX
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <CUnit/CUnit.h>
-#include <CUnit/Basic.h>
-#include <limits.h>     // for PATH_MAX
-#include <sys/stat.h>   // for mkdir
-#include <unistd.h>     // for mkdtemp, unlink, rmdir
+#include <sys/stat.h>  // for mkdir
+#include <unistd.h>    // for mkdtemp, unlink, rmdir
+
 #include "../include/config.h"
 #include "../include/debug.h"
 
@@ -13,33 +14,39 @@
 config_t config = {0};
 
 // Test cases
-void test_load_config_basic(void) {
+void test_load_config_basic(void)
+{
     // Save original environment variables
-    char *old_xdg_config = getenv("XDG_CONFIG_HOME");
-    char *old_home = getenv("HOME");
+    char* old_xdg_config = getenv("XDG_CONFIG_HOME");
+    char* old_home = getenv("HOME");
 
     // Make copies of the original values
-    char *xdg_config_copy = old_xdg_config ? strdup(old_xdg_config) : NULL;
-    char *home_copy = old_home ? strdup(old_home) : NULL;
+    char* xdg_config_copy = old_xdg_config ? strdup(old_xdg_config) : NULL;
+    char* home_copy = old_home ? strdup(old_home) : NULL;
 
     // Create a temporary test directory
     char temp_dir[] = "/tmp/belvedere_test_XXXXXX";
-    char *test_dir = mkdtemp(temp_dir);
-    if (!test_dir) {
+    char* test_dir = mkdtemp(temp_dir);
+    if (!test_dir)
+    {
         // Clean up and return if we can't create temp directory
-        if (xdg_config_copy) free(xdg_config_copy);
-        if (home_copy) free(home_copy);
+        if (xdg_config_copy)
+            free(xdg_config_copy);
+        if (home_copy)
+            free(home_copy);
         CU_ASSERT_FATAL(0);  // Fail the test
         return;
     }
 
     // Set up test environment
-    if (setenv("XDG_CONFIG_HOME", test_dir, 1) != 0 ||
-        setenv("HOME", "/tmp/nonexistent", 1) != 0) {
+    if (setenv("XDG_CONFIG_HOME", test_dir, 1) != 0 || setenv("HOME", "/tmp/nonexistent", 1) != 0)
+    {
         // Clean up and return if we can't set environment variables
         rmdir(test_dir);
-        if (xdg_config_copy) free(xdg_config_copy);
-        if (home_copy) free(home_copy);
+        if (xdg_config_copy)
+            free(xdg_config_copy);
+        if (home_copy)
+            free(home_copy);
         CU_ASSERT_FATAL(0);  // Fail the test
         return;
     }
@@ -47,24 +54,30 @@ void test_load_config_basic(void) {
     // Create test config file in the temporary directory
     char test_config_dir[PATH_MAX];
     snprintf(test_config_dir, sizeof(test_config_dir), "%s/belvedere", test_dir);
-    if (mkdir(test_config_dir, 0755) != 0) {
+    if (mkdir(test_config_dir, 0755) != 0)
+    {
         // Clean up and return if we can't create config directory
         rmdir(test_dir);
-        if (xdg_config_copy) free(xdg_config_copy);
-        if (home_copy) free(home_copy);
+        if (xdg_config_copy)
+            free(xdg_config_copy);
+        if (home_copy)
+            free(home_copy);
         CU_ASSERT_FATAL(0);  // Fail the test
         return;
     }
 
     char test_config_file[PATH_MAX];
     snprintf(test_config_file, sizeof(test_config_file), "%s/config", test_config_dir);
-    FILE *f = fopen(test_config_file, "w");
-    if (!f) {
+    FILE* f = fopen(test_config_file, "w");
+    if (!f)
+    {
         // Clean up and return if we can't create config file
         rmdir(test_config_dir);
         rmdir(test_dir);
-        if (xdg_config_copy) free(xdg_config_copy);
-        if (home_copy) free(home_copy);
+        if (xdg_config_copy)
+            free(xdg_config_copy);
+        if (home_copy)
+            free(home_copy);
         CU_ASSERT_FATAL(0);  // Fail the test
         return;
     }
@@ -88,13 +101,16 @@ void test_load_config_basic(void) {
 
     // Update config file with general section
     f = fopen(test_config_file, "w");
-    if (!f) {
+    if (!f)
+    {
         // Clean up and return if we can't update config file
         unlink(test_config_file);
         rmdir(test_config_dir);
         rmdir(test_dir);
-        if (xdg_config_copy) free(xdg_config_copy);
-        if (home_copy) free(home_copy);
+        if (xdg_config_copy)
+            free(xdg_config_copy);
+        if (home_copy)
+            free(home_copy);
         CU_ASSERT_FATAL(0);  // Fail the test
         return;
     }
@@ -112,41 +128,55 @@ void test_load_config_basic(void) {
     rmdir(test_dir);
 
     // Restore environment variables
-    if (xdg_config_copy) {
+    if (xdg_config_copy)
+    {
         setenv("XDG_CONFIG_HOME", xdg_config_copy, 1);
         free(xdg_config_copy);
-    } else {
+    }
+    else
+    {
         unsetenv("XDG_CONFIG_HOME");
     }
-    if (home_copy) {
+    if (home_copy)
+    {
         setenv("HOME", home_copy, 1);
         free(home_copy);
-    } else {
+    }
+    else
+    {
         unsetenv("HOME");
     }
 
     // Verify restoration by comparing values instead of pointers
-    char *current_xdg_config = getenv("XDG_CONFIG_HOME");
-    char *current_home = getenv("HOME");
-    if (old_xdg_config) {
+    char* current_xdg_config = getenv("XDG_CONFIG_HOME");
+    char* current_home = getenv("HOME");
+    if (old_xdg_config)
+    {
         CU_ASSERT_STRING_EQUAL(current_xdg_config, old_xdg_config);
-    } else {
+    }
+    else
+    {
         CU_ASSERT_PTR_NULL(current_xdg_config);
     }
-    if (old_home) {
+    if (old_home)
+    {
         CU_ASSERT_STRING_EQUAL(current_home, old_home);
-    } else {
+    }
+    else
+    {
         CU_ASSERT_PTR_NULL(current_home);
     }
 }
 
-void test_load_config_sections(void) {
+void test_load_config_sections(void)
+{
     config_t test_config = {0};
 
     // Create a temporary test directory
     char temp_dir[] = "/tmp/belvedere_test_XXXXXX";
-    char *test_dir = mkdtemp(temp_dir);
-    if (!test_dir) {
+    char* test_dir = mkdtemp(temp_dir);
+    if (!test_dir)
+    {
         CU_ASSERT_FATAL(0);  // Fail the test
         return;
     }
@@ -154,8 +184,9 @@ void test_load_config_sections(void) {
     // Create test config file
     char test_config_file[PATH_MAX];
     snprintf(test_config_file, sizeof(test_config_file), "%s/test_config_sections.ini", test_dir);
-    FILE *f = fopen(test_config_file, "w");
-    if (!f) {
+    FILE* f = fopen(test_config_file, "w");
+    if (!f)
+    {
         rmdir(test_dir);
         CU_ASSERT_FATAL(0);  // Fail the test
         return;
@@ -209,13 +240,15 @@ void test_load_config_sections(void) {
     rmdir(test_dir);
 }
 
-void test_load_config_limits(void) {
+void test_load_config_limits(void)
+{
     config_t test_config = {0};
 
     // Create a temporary test directory
     char temp_dir[] = "/tmp/belvedere_test_XXXXXX";
-    char *test_dir = mkdtemp(temp_dir);
-    if (!test_dir) {
+    char* test_dir = mkdtemp(temp_dir);
+    if (!test_dir)
+    {
         CU_ASSERT_FATAL(0);  // Fail the test
         return;
     }
@@ -223,30 +256,35 @@ void test_load_config_limits(void) {
     // Create test config file
     char test_config_file[PATH_MAX];
     snprintf(test_config_file, sizeof(test_config_file), "%s/test_config_limits.ini", test_dir);
-    FILE *f = fopen(test_config_file, "w");
-    if (!f) {
+    FILE* f = fopen(test_config_file, "w");
+    if (!f)
+    {
         rmdir(test_dir);
         CU_ASSERT_FATAL(0);  // Fail the test
         return;
     }
 
     // Add more devices than MAX_DEVICES
-    for (int i = 0; i < MAX_DEVICES + 2; i++) {
+    for (int i = 0; i < MAX_CONFIG_DEVICES + 2; i++)
+    {
         fprintf(f, "[0x%04x/0x%04x]\n", i, i);
         fprintf(f, "target = device%d\n", i);
         // Add more bindings than MAX_BINDINGS
-        for (int j = 0; j < MAX_BINDINGS + 2; j++) {
+        for (int j = 0; j < MAX_BINDINGS + 2; j++)
+        {
             fprintf(f, "%d = +caps\n", j);
         }
         fprintf(f, "\n");
     }
     fclose(f);
 
+    // Load and verify the config
     CU_ASSERT(load_config(test_config_file, &test_config) == true);
 
     // Verify limits are respected
-    CU_ASSERT_EQUAL(test_config.device_count, MAX_DEVICES);
-    for (size_t i = 0; i < test_config.device_count; i++) {
+    CU_ASSERT_EQUAL(test_config.device_count, MAX_CONFIG_DEVICES);
+    for (size_t i = 0; i < test_config.device_count; i++)
+    {
         CU_ASSERT_EQUAL(test_config.devices[i].binding_count, MAX_BINDINGS);
     }
 
@@ -255,7 +293,8 @@ void test_load_config_limits(void) {
     rmdir(test_dir);
 }
 
-void test_get_command_for_key(void) {
+void test_get_command_for_key(void)
+{
     // Set up test configuration
     config_t test_config = {0};
     test_config.device_count = 1;
@@ -266,17 +305,21 @@ void test_get_command_for_key(void) {
     const char* modes[] = {"+", "-", "^"};
     const char* leds[] = {"caps", "num", "scroll"};
 
-    strncpy(test_config.setleds_path, "/usr/local/bin/setleds", sizeof(test_config.setleds_path) - 1);
+    strncpy(test_config.setleds_path, "/usr/local/bin/setleds",
+            sizeof(test_config.setleds_path) - 1);
 
-    for (size_t i = 0; i < 3; i++) {
+    for (size_t i = 0; i < 3; i++)
+    {
         test_config.devices[0].bindings[i].keycode = 111 + i;
         test_config.devices[0].bindings[i].mode = modes[i][0];
-        strncpy(test_config.devices[0].bindings[i].led, leds[i], sizeof(test_config.devices[0].bindings[i].led) - 1);
+        strncpy(test_config.devices[0].bindings[i].led, leds[i],
+                sizeof(test_config.devices[0].bindings[i].led) - 1);
     }
     test_config.devices[0].binding_count = 3;
 
     // Test each mode/LED combination
-    for (size_t i = 0; i < 3; i++) {
+    for (size_t i = 0; i < 3; i++)
+    {
         const char* cmd = get_command_for_key(&test_config, 0x5043, 0x54a3, 111 + i);
         char expected[256];
         snprintf(expected, sizeof(expected), "/usr/local/bin/setleds %s%s", modes[i], leds[i]);
@@ -289,15 +332,18 @@ void test_get_command_for_key(void) {
     CU_ASSERT_PTR_NULL(get_command_for_key(&test_config, 0x1234, 0x5678, 111));  // Invalid device
 }
 
-int main(void) {
+int main(void)
+{
     // Initialize CUnit test registry
-    if (CUE_SUCCESS != CU_initialize_registry()) {
+    if (CUE_SUCCESS != CU_initialize_registry())
+    {
         return CU_get_error();
     }
 
     // Create test suite
     CU_pSuite pSuite = CU_add_suite("Config Tests", NULL, NULL);
-    if (NULL == pSuite) {
+    if (NULL == pSuite)
+    {
         CU_cleanup_registry();
         return CU_get_error();
     }
@@ -306,7 +352,8 @@ int main(void) {
     if ((NULL == CU_add_test(pSuite, "test_load_config_basic", test_load_config_basic)) ||
         (NULL == CU_add_test(pSuite, "test_load_config_sections", test_load_config_sections)) ||
         (NULL == CU_add_test(pSuite, "test_load_config_limits", test_load_config_limits)) ||
-        (NULL == CU_add_test(pSuite, "test_get_command_for_key", test_get_command_for_key))) {
+        (NULL == CU_add_test(pSuite, "test_get_command_for_key", test_get_command_for_key)))
+    {
         CU_cleanup_registry();
         return CU_get_error();
     }

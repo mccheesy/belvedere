@@ -23,6 +23,11 @@ if(ENABLE_DEBUG)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
 endif()
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_options(--coverage)
+    add_link_options(--coverage)
+endif()
+
 # Enable testing
 enable_testing()
 
@@ -50,6 +55,21 @@ message(STATUS "Building for OS: ${OS}, Architecture: ${ARCH}")
 
 # Find required packages
 find_package(PkgConfig REQUIRED)
+pkg_check_modules(LIBUV REQUIRED libuv)
+pkg_check_modules(CUNIT REQUIRED cunit)
+
+# Set explicit paths for CUnit
+if(APPLE)
+    if(ARCH STREQUAL "arm64")
+        set(CUNIT_LIBRARY_DIR "/opt/homebrew/lib")
+        set(CUNIT_INCLUDE_DIR "/opt/homebrew/include")
+        link_directories(${CUNIT_LIBRARY_DIR})
+    else()
+        set(CUNIT_LIBRARY_DIR "/usr/local/lib")
+        set(CUNIT_INCLUDE_DIR "/usr/local/include")
+        link_directories(${CUNIT_LIBRARY_DIR})
+    endif()
+endif()
 
 # Set library search paths based on OS and architecture
 if(APPLE)
@@ -61,28 +81,22 @@ if(APPLE)
 
     # macOS specific paths
     set(HIDAPI_SEARCH_PATHS
-        "${HOMEBREW_PREFIX}/Cellar/hidapi/0.14.0/lib"
         "${HOMEBREW_PREFIX}/lib"
     )
     set(HIDAPI_INCLUDE_PATHS
-        "${HOMEBREW_PREFIX}/Cellar/hidapi/0.14.0/include"
         "${HOMEBREW_PREFIX}/include"
     )
     set(LIBUV_SEARCH_PATHS
-        "${HOMEBREW_PREFIX}/Cellar/libuv/1.49.2/lib"
         "${HOMEBREW_PREFIX}/lib"
     )
     set(LIBUV_INCLUDE_PATHS
-        "${HOMEBREW_PREFIX}/Cellar/libuv/1.49.2/include"
         "${HOMEBREW_PREFIX}/include"
     )
     set(CUNIT_SEARCH_PATHS
-        "/usr/local/Cellar/cunit/2.1-3/lib"
-        "/usr/local/lib"
+        "${HOMEBREW_PREFIX}/lib"
     )
     set(CUNIT_INCLUDE_PATHS
-        "/usr/local/Cellar/cunit/2.1-3/include"
-        "/usr/local/include"
+        "${HOMEBREW_PREFIX}/include"
     )
 elseif(UNIX)
     # Linux paths
@@ -121,12 +135,10 @@ endif()
 find_library(HIDAPI_LIBRARY
     NAMES hidapi
     PATHS ${HIDAPI_SEARCH_PATHS}
-    NO_DEFAULT_PATH
 )
 find_path(HIDAPI_INCLUDE_DIR
     NAMES hidapi/hidapi.h
     PATHS ${HIDAPI_INCLUDE_PATHS}
-    NO_DEFAULT_PATH
 )
 
 if(NOT HIDAPI_LIBRARY)
@@ -141,12 +153,10 @@ endif()
 find_library(LIBUV_LIBRARY
     NAMES uv libuv
     PATHS ${LIBUV_SEARCH_PATHS}
-    NO_DEFAULT_PATH
 )
 find_path(LIBUV_INCLUDE_DIR
     NAMES uv.h
     PATHS ${LIBUV_INCLUDE_PATHS}
-    NO_DEFAULT_PATH
 )
 
 if(NOT LIBUV_LIBRARY)
@@ -161,12 +171,11 @@ endif()
 find_library(CUNIT_LIBRARY
     NAMES cunit
     PATHS ${CUNIT_SEARCH_PATHS}
-    NO_DEFAULT_PATH
 )
+
 find_path(CUNIT_INCLUDE_DIR
     NAMES CUnit/CUnit.h
     PATHS ${CUNIT_INCLUDE_PATHS}
-    NO_DEFAULT_PATH
 )
 
 if(NOT CUNIT_LIBRARY)
@@ -183,6 +192,8 @@ set(SOURCES
     src/config.c
     src/debug.c
     src/hid_manager.c
+    src/device_utils.c
+    src/input_manager.c
 )
 
 # Add header files
@@ -200,12 +211,16 @@ target_include_directories(belvedere PRIVATE
     ${CMAKE_SOURCE_DIR}/include
     ${HIDAPI_INCLUDE_DIR}
     ${LIBUV_INCLUDE_DIR}
+    ${CUNIT_INCLUDE_DIR}
 )
 
 # Link libraries
 target_link_libraries(belvedere PRIVATE
     ${HIDAPI_LIBRARY}
     ${LIBUV_LIBRARY}
+    "-L${CUNIT_LIBRARY_DIR} -lcunit"
+    "-framework CoreFoundation"
+    "-framework IOKit"
 )
 
 # Install executable
@@ -269,7 +284,7 @@ if(BUILD_TESTS)
     add_executable(test_config tests/test_config.c src/config.c src/debug.c)
     target_link_libraries(test_config PRIVATE
         ${CMAKE_DL_LIBS}
-        ${CUNIT_LIBRARY}
+        ${CUNIT_LIBRARIES}
     )
     target_include_directories(test_config PRIVATE
         ${CMAKE_SOURCE_DIR}/include
@@ -281,7 +296,7 @@ if(BUILD_TESTS)
         ${CMAKE_DL_LIBS}
         ${HIDAPI_LIBRARY}
         ${LIBUV_LIBRARY}
-        ${CUNIT_LIBRARY}
+        "-L${CUNIT_LIBRARY_DIR} -lcunit"
     )
     target_include_directories(test_hid_manager PRIVATE
         ${CMAKE_SOURCE_DIR}/include
